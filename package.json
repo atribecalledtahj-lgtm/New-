@@ -1,0 +1,12 @@
+{
+  "name": "reviewreply",
+  "version": "1.0.0",
+  "description": "AI review-reply subscription for local businesses",
+  "type": "commonjs",
+  "engines": { "node": ">=22.5" },
+  "scripts": {
+    "start": "node --no-warnings server.js",
+    "test": "node --no-warnings test.js",
+    "ops": "node --no-warnings ops.js"
+  }
+}

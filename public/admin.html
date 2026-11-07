@@ -1,0 +1,19 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex"><title>ReviewReply – Operator</title><link rel="stylesheet" href="/style.css"></head><body><div class="wrap">
+<nav><b>Operator console</b></nav>
+<div class="card"><label>Admin token (kept in this tab only)</label><input id="t" type="password"><button class="btn" id="go">Load</button><p class="err" id="e"></p></div>
+<div id="d" hidden><pre id="stats" class="card"></pre><div class="card" style="overflow:auto"><table id="u"></table></div></div>
+<script>
+const $=id=>document.getElementById(id);let tok='';
+const call=(p,b)=>fetch(p,{method:b?'POST':'GET',headers:{Authorization:'Bearer '+tok,'Content-Type':'application/json'},body:b?JSON.stringify(b):undefined}).then(async r=>({ok:r.ok,j:await r.json()}));
+async function load(){const s=await call('/api/admin/stats');if(!s.ok){$('e').textContent='Unauthorized';return}$('e').textContent='';$('d').hidden=false;
+ $('stats').textContent=JSON.stringify(s.j,null,2);const u=await call('/api/admin/users');
+ $('u').innerHTML='<tr><th>ID</th><th>Email</th><th>Plan</th><th>Status</th><th></th></tr>';
+ for(const x of u.j){const tr=document.createElement('tr');
+  for(const v of [x.id,x.email,x.plan,x.status]){const td=document.createElement('td');td.textContent=v;tr.appendChild(td)}
+  const td=document.createElement('td');
+  for(const [label,body] of [[x.plan==='pro'?'→free':'→pro',{plan:x.plan==='pro'?'free':'pro'}],[x.status==='active'?'suspend':'restore',{status:x.status==='active'?'suspended':'active'}]]){
+   const b=document.createElement('button');b.className='btn ghost';b.textContent=label;b.onclick=async()=>{await call('/api/admin/user',{id:x.id,...body});load()};td.appendChild(b)}
+  tr.appendChild(td);$('u').appendChild(tr)}}
+$('go').onclick=()=>{tok=$('t').value;load()};
+</script></div></body></html>
