@@ -1,19 +1,30 @@
 <!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="robots" content="noindex"><title>ReviewReply – Operator</title><link rel="stylesheet" href="/style.css"></head><body><div class="wrap">
+<meta name="robots" content="noindex"><title>Operator Console</title><link rel="stylesheet" href="/style.css"></head><body><div class="wrap" style="max-width:1100px">
 <nav><b>Operator console</b></nav>
 <div class="card"><label>Admin token (kept in this tab only)</label><input id="t" type="password"><button class="btn" id="go">Load</button><p class="err" id="e"></p></div>
-<div id="d" hidden><pre id="stats" class="card"></pre><div class="card" style="overflow:auto"><table id="u"></table></div></div>
+<div id="d" hidden>
+<pre id="stats" class="card"></pre>
+<div class="card"><h3>Add prospect</h3>
+<input id="n" placeholder="Business name"><input id="em" placeholder="Email"><input id="ci" placeholder="City"><input id="cs" placeholder="Current website (blank if none)"><input id="ob" placeholder="True observation about their current site (required if they have one)">
+<select id="ni"><option>plumbing</option><option>hvac</option><option>salon</option><option>barber</option><option>restaurant</option><option>dental</option><option>generic</option></select>
+<button class="btn" id="add">Add</button></div>
+<div class="card" style="overflow:auto"><table id="u"></table></div>
+<pre id="draft" class="card" style="white-space:pre-wrap" hidden></pre></div>
 <script>
 const $=id=>document.getElementById(id);let tok='';
-const call=(p,b)=>fetch(p,{method:b?'POST':'GET',headers:{Authorization:'Bearer '+tok,'Content-Type':'application/json'},body:b?JSON.stringify(b):undefined}).then(async r=>({ok:r.ok,j:await r.json()}));
+const call=(p,b)=>fetch(p,{method:b?'POST':'GET',headers:{Authorization:'Bearer '+tok,'Content-Type':'application/json'},body:b?JSON.stringify(b):undefined}).then(async r=>({ok:r.ok,j:await r.json().catch(()=>({}))}));
+const btn=(label,fn)=>{const b=document.createElement('button');b.className='btn ghost';b.textContent=label;b.onclick=fn;return b};
 async function load(){const s=await call('/api/admin/stats');if(!s.ok){$('e').textContent='Unauthorized';return}$('e').textContent='';$('d').hidden=false;
- $('stats').textContent=JSON.stringify(s.j,null,2);const u=await call('/api/admin/users');
- $('u').innerHTML='<tr><th>ID</th><th>Email</th><th>Plan</th><th>Status</th><th></th></tr>';
+ $('stats').textContent=JSON.stringify(s.j,null,2);const u=await call('/api/admin/prospects');
+ $('u').innerHTML='<tr><th>ID</th><th>Name</th><th>Niche</th><th>City</th><th>Status</th><th>Preview</th><th>Actions</th></tr>';
  for(const x of u.j){const tr=document.createElement('tr');
-  for(const v of [x.id,x.email,x.plan,x.status]){const td=document.createElement('td');td.textContent=v;tr.appendChild(td)}
+  for(const v of [x.id,x.name,x.niche,x.city,x.status]){const td=document.createElement('td');td.textContent=v;tr.appendChild(td)}
+  const pv=document.createElement('td');const a=document.createElement('a');a.href='/preview/'+x.slug;a.target='_blank';a.textContent='/preview/'+x.slug;pv.appendChild(a);tr.appendChild(pv);
   const td=document.createElement('td');
-  for(const [label,body] of [[x.plan==='pro'?'→free':'→pro',{plan:x.plan==='pro'?'free':'pro'}],[x.status==='active'?'suspend':'restore',{status:x.status==='active'?'suspended':'active'}]]){
-   const b=document.createElement('button');b.className='btn ghost';b.textContent=label;b.onclick=async()=>{await call('/api/admin/user',{id:x.id,...body});load()};td.appendChild(b)}
+  td.appendChild(btn('draft',async()=>{const d=await call('/api/admin/draft?id='+x.id);$('draft').hidden=false;$('draft').textContent=(d.j.problems&&d.j.problems.length?'MISSING: '+d.j.problems.join(', ')+'\n\n':'')+'To: '+d.j.to+'\nSubject: '+d.j.subject+'\n\n'+d.j.body}));
+  td.appendChild(btn('send',async()=>{if(!confirm('Send outreach email to '+x.name+'?'))return;const r=await call('/api/admin/send',{id:x.id});alert(r.ok?'Sent':r.j.error);load()}));
+  for(const st of ['replied','won','lost'])td.appendChild(btn(st,async()=>{await call('/api/admin/update',{id:x.id,status:st});load()}));
   tr.appendChild(td);$('u').appendChild(tr)}}
 $('go').onclick=()=>{tok=$('t').value;load()};
+$('add').onclick=async()=>{const r=await call('/api/admin/prospect',{name:$('n').value,email:$('em').value,city:$('ci').value,current_site:$('cs').value,observation:$('ob').value,niche:$('ni').value});if(!r.ok)alert(r.j.error);load()};
 </script></div></body></html>

@@ -1,7 +1,7 @@
 {
-  "name": "reviewreply",
+  "name": "web-agency-platform",
   "version": "1.0.0",
-  "description": "AI review-reply subscription for local businesses",
+  "description": "Web agency platform for local businesses",
   "type": "commonjs",
   "engines": { "node": ">=22.5" },
   "scripts": {

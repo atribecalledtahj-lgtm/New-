@@ -1,15 +1,28 @@
 <!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>ReviewReply – AI replies to your Google reviews</title>
-<meta name="description" content="Paste a customer review, get a polished on-brand reply in seconds. Built for local businesses. $29/month.">
+<title>{{BUSINESS_NAME}} – Websites for local businesses</title>
+<meta name="description" content="A professional website for your local business for a flat ${{SETUP}}, plus optional hosting, security and maintenance from ${{MAINT}}/month.">
 <link rel="stylesheet" href="/style.css"></head><body><div class="wrap">
-<nav><b>ReviewReply</b><span><a href="/app.html">Sign in</a></span></nav>
-<h1>Answer every review in 10 seconds.</h1>
-<p class="sub">Replying to reviews boosts local rankings and wins customers, but nobody has time. Paste a review, get a warm, specific, on-brand reply. Copy, paste, done.</p>
-<p><a class="btn" href="/app.html">Try 3 replies free</a></p>
+<nav><b>{{BUSINESS_NAME}}</b><a href="#start">Get a free sample</a></nav>
+<h1>A website that wins you customers. ${{SETUP}}, done for you.</h1>
+<p class="sub">Most customers look you up online before they call. We build fast, mobile-friendly sites for local businesses, then keep them secure and up to date so you never think about it.</p>
+<p><a class="btn" href="#start">Get a free sample homepage</a></p>
 <div class="grid">
-<div class="card"><h3>Sounds like you</h3><p>Tell it your business and tone once. Every reply matches.</p></div>
-<div class="card"><h3>Handles bad reviews</h3><p>Calm, sincere responses that take it offline and protect your reputation.</p></div>
-<div class="card"><h3>Works anywhere</h3><p>Google, Yelp, Facebook, TripAdvisor. Just paste the text.</p></div></div>
-<div class="card" style="text-align:center"><div class="price">$29<small style="font-size:16px;color:var(--mut)">/month</small></div>
-<p>Up to 300 replies a month. Cancel anytime.</p><a class="btn" href="/app.html">Start free</a></div>
-<footer>© ReviewReply · Replies are AI-generated; review before posting.</footer></div></body></html>
+<div class="card"><h3>Flat ${{SETUP}}</h3><p>Custom design with your name, services, photos and hours. No surprise fees.</p></div>
+<div class="card"><h3>${{MAINT}}/month, optional</h3><p>Hosting, SSL, security updates, backups and small edits handled for you.</p></div>
+<div class="card"><h3>You own it</h3><p>Your domain stays in your name. Cancel maintenance anytime and take your site with you.</p></div></div>
+<div class="card" id="start" style="max-width:520px;margin:0 auto">
+<h3>Tell us about your business</h3>
+<label>Business name</label><input id="name" maxlength="120">
+<label>Email</label><input id="email" type="email">
+<label>Phone (optional)</label><input id="phone" maxlength="40">
+<label>What kind of business?</label>
+<select id="niche"><option value="generic">Other</option><option value="plumbing">Plumbing</option><option value="hvac">HVAC</option><option value="salon">Salon</option><option value="barber">Barber</option><option value="restaurant">Restaurant</option><option value="dental">Dental</option></select>
+<label>Anything we should know?</label><textarea id="message" rows="3" maxlength="1000"></textarea>
+<input id="website" tabindex="-1" autocomplete="off" style="position:absolute;left:-9999px" aria-hidden="true">
+<p class="err" id="err"></p><button class="btn" id="go">Send</button><p id="ok" hidden>Thanks! We'll be in touch within one business day.</p></div>
+<footer>© {{BUSINESS_NAME}}</footer></div>
+<script>
+const $=id=>document.getElementById(id);
+$('go').onclick=async()=>{$('err').textContent='';const r=await fetch('/api/lead',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:$('name').value,email:$('email').value,phone:$('phone').value,niche:$('niche').value,message:$('message').value,website:$('website').value})});
+const j=await r.json();if(r.ok){$('ok').hidden=false;$('go').hidden=true}else $('err').textContent=j.error};
+</script></body></html>
